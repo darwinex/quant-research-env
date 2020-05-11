@@ -1,0 +1,8 @@
+**/__pycache__/
+.vscode
+.vscode/
+RegimeAnalysisContentSeries/USE_PACKAGES.txt
+RegimeAnalysisContentSeries/Docs/
+RegimeAnalysisContentSeries/1_StartingFromData/FTP_DarwinAssets.py
+RegimeAnalysisContentSeries/1_StartingFromData/FTP_TraditionalAssets.py
+SentimentDataAnalysis/
