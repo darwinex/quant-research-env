@@ -29,7 +29,7 @@ class Asset(object):
         self.assetDataType = assetDataType
 
         # Create the path you wish to save the data:                                         
-        self.SAVE_PATH = os.path.expandvars('${HOME}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/')
+        self.SAVE_PATH = os.path.expandvars('${HOME}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/')
 
         # Create the ftp credentials:
         if assetType == 'traditional':
@@ -104,8 +104,8 @@ class Asset(object):
 
         # NOTE: CHANGE THE PATHS DEPENDING ON THE DOWNLOADED DATA!
         homeStr = os.path.expandvars('${HOME}')
-        bidData = glob.glob(f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{assetName}_BID_*.pkl')[0]
-        askData = glob.glob(f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{assetName}_ASK_*.pkl')[0]
+        bidData = glob.glob(f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/{assetName}_BID_*.pkl')[0]
+        askData = glob.glob(f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/{assetName}_ASK_*.pkl')[0]
 
         # Generate the object: 
         READER = DWX_TickData_Reader_API(_bids_file=bidData, 
@@ -127,8 +127,9 @@ class Asset(object):
     def _readBidAndAskHistoricalData(self, assetName, endDate):
 
         # Read the data from the .csv file:
+        # NOTE: CHANGE THIS TO POINT TO THE SPECIFIC DIRECTORY:
         homeStr = os.path.expandvars('${HOME}')
-        READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{assetName}_BID_ASK_{endDate}.csv'
+        READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_5T/{assetName}_BID_ASK_{endDate}.csv'
 
         # Load in df:
         self._dataDF = pd.read_csv(READ_PATH, index_col=0)

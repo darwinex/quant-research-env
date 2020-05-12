@@ -82,6 +82,14 @@ class ResearchStudy(Portfolio):
             # Generate the mid column price:
             eachAssetDataFrame[f'{eachAssetName}_mid_price'] = round((eachAssetDataFrame[f'{eachAssetName}_bid_price'] + eachAssetDataFrame[f'{eachAssetName}_ask_price'])/2, 5)
 
+    def _generateRollingMean(self, rollingWindow=100):
+
+        # Generate rolling mean and std based on some rolling window:
+        for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
+
+            eachAssetDataFrame[f'{eachAssetName}_roll_mean'] = eachAssetDataFrame['Returns'].rolling(rollingWindow).mean()
+            eachAssetDataFrame[f'{eachAssetName}_roll_std'] = eachAssetDataFrame['Returns'].rolling(rollingWindow).std()
+
     ######################### RETURNS #########################
 
     ######################### REPRESENTATIONS #########################
@@ -98,7 +106,7 @@ class ResearchStudy(Portfolio):
 
             # Tick Bars > We need to have ticks in the CSV no other form or aggregation.
             # The timestamp doesn't need to be as index > if it is as an index gives error.
-            READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
+            READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
             bars = standard_data_structures.get_tick_bars(READ_PATH, threshold=thresholdVariable, batch_size=1000000, verbose=False)
 
             # Add them to the dict based on their symbol:
@@ -116,7 +124,7 @@ class ResearchStudy(Portfolio):
 
             # Dollar Bars > We need to have ticks in the CSV no other form or aggregation.
             # The timestamp doesn't need to be as index > if it is as index gives error.
-            READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
+            READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
             bars = standard_data_structures.get_dollar_bars(READ_PATH, threshold=thresholdVariable, batch_size=1000000, verbose=True)
 
             # Add them to the dict based on their symbol:
@@ -137,6 +145,8 @@ class ResearchStudy(Portfolio):
             f1, ax = plt.subplots(figsize = (10,5))
             f1.canvas.set_window_title('Returns Plot')
             plt.plot(eachAssetDataFrame.Returns.values, label='Returns')
+            plt.plot(eachAssetDataFrame[f'{eachAssetName}_roll_mean'].values, label='RollingMean', linewidth=3.0)
+            plt.plot(eachAssetDataFrame[f'{eachAssetName}_roll_std'].values, label='RollingStd', linewidth=3.0)
             plt.grid(linestyle='dotted')
             plt.xlabel('Observations')
             plt.ylabel('Returns')
@@ -192,8 +202,8 @@ if __name__ == "__main__":
     
     # Create some path variables > Point them to the specific folder:
     homeStr = os.path.expanduser("~")
-    plotsSaveDirectory = os.path.expandvars(f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Plots')
-    dataframesSaveDirectory = os.path.expandvars(f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data')
+    plotsSaveDirectory = os.path.expandvars(f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Plots')
+    dataframesSaveDirectory = os.path.expandvars(f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data')
 
     # Create some assets:
     assetsList = [Asset('WS30', 'traditional', 'historical'), # Index US
@@ -209,6 +219,7 @@ if __name__ == "__main__":
     #R_STUDY = ResearchStudy(assetsList, formOrRead='form', sampleFormat='5T')
 
     # Or read it from file:
+    # NOTE: If the data is not in the /Data directory, we will need to change the path in the AssetClass _read method.
     R_STUDY = ResearchStudy(assetsList, formOrRead='read', dateHourString='2020-02-04_23')
     
     # Print the whole dict, some asset or the shape:
@@ -219,8 +230,9 @@ if __name__ == "__main__":
     # Apply the reseach study we want:
     R_STUDY._generateRawReturns()
     #R_STUDY._generateLogReturns()
+    R_STUDY._generateRollingMean()
 
     # Generate the plots:
-    R_STUDY._plotReturns(plotsSaveDirectory)
-    R_STUDY._plotDistribution(plotsSaveDirectory)
+    R_STUDY._plotReturns(plotsSaveDirectory, showIt=True)
+    R_STUDY._plotDistribution(plotsSaveDirectory, showIt=True)
     
