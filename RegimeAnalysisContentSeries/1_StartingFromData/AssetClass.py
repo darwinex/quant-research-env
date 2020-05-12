@@ -54,15 +54,24 @@ class Asset(object):
         if assetDataType == 'historical':
 
             if assetType == 'traditional':
+
+                # Create the DF and the dates:
                 self._dataDF = None
                 self.startDate, self.endDate = '2020-02-03', '2020-02-05'
+
+                # Assign the method to a more general one:
                 self._getData = self._getHistoricalDataOfTraditionalAsset
 
             elif assetType == 'darwin':
+
+                # Create the DF and the dates:
                 self._dataDF = None
                 self.startDate, self.endDate = '2019-01-01', '2019-03-03'
+
+                # Assign the method to a more general one:
                 self._getData = self._getHistoricalDataOfDarwinAsset
 
+        # Will request live data if we want to make a Strategy or Model out of it:
         elif assetDataType == 'live':
             pass
 
@@ -78,7 +87,8 @@ class Asset(object):
         
         # Save the data:
         self.DOWNLOADER._save_df_to_pickle(BID_DATE_DATA, which_path=self.SAVE_PATH)
-                                                             
+
+        # Get the data:                                    
         ASK_DATE_DATA = self.DOWNLOADER._download_month_data_ask(_asset=self.assetName, 
                                                                  _start_date=self.startDate, 
                                                                  _end_date=self.endDate, 
@@ -116,6 +126,7 @@ class Asset(object):
 
     def _readBidAndAskHistoricalData(self, assetName, endDate):
 
+        # Read the data from the .csv file:
         homeStr = os.path.expandvars('${HOME}')
         READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{assetName}_BID_ASK_{endDate}.csv'
 
@@ -123,6 +134,8 @@ class Asset(object):
         self._dataDF = pd.read_csv(READ_PATH, index_col=0)
 
     ########################### TRADITIONAL ASSET DATA ###########################
+
+    ########################### DARWIN ASSET DATA ###########################
 
     def _getHistoricalDataOfDarwinAsset(self, assetSuffix):
 
@@ -132,6 +145,8 @@ class Asset(object):
                                                      monthly=True, # If set to False, month/year used > If True ALL data available
                                                      month=self.startDate,
                                                      year=self.endDate)
+
+    ########################### DARWIN ASSET DATA ###########################
 
 if __name__ == "__main__":
     

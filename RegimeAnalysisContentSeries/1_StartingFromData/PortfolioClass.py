@@ -21,7 +21,7 @@ class Portfolio(Asset):
         self.portfolioAssetComponents = portfolioAssetComponents
         self._portfolioDict = {}
 
-    ###############################################################
+    ################### PORTFOLIO HISTORICAL DATA ###################
 
     def _formPortfolioHistoricalData(self, sampleFormat):
         
@@ -32,34 +32,34 @@ class Portfolio(Asset):
             eachAssetObject = eachAsset
             eachAssetObject._getData(sampleFormat)
             
-            # Try this:
+            # Quit the FTP connection for cleaning:
             eachAssetObject.DOWNLOADER._ftpObj.quit()
             self._portfolioDict[eachAssetObject.assetName] = eachAssetObject._dataDF
 
         # Print the dict:
         pprint.pprint(self._portfolioDict)
 
-    def _formPortfolioDataFrame(self):
-
-        # From the dict, get the df's and concat them:
-        # NOTE: NOT WORKING.
-        self._portfolioDF = pd.concat(self._portfolioDict.values(), axis=1, sort=False)
-        print(self._portfolioDF)
-
     def _readPortfolioHistoricalData(self, endDate):
 
         # Loop and get the data:
         for eachAsset in self.portfolioAssetComponents:
+
             # Instantiate the object and call the method:
             eachAssetObject = eachAsset
+
+            # Read it and add it to the dictionary:
             eachAssetObject._readBidAndAskHistoricalData(eachAssetObject.assetName, endDate)
             self._portfolioDict[eachAssetObject.assetName] = eachAssetObject._dataDF
 
-    ###############################################################
+    ################### PORTFOLIO HISTORICAL DATA ###################
+
+    ################### PORTFOLIO LIVE DATA ###################
 
     def _getPortfolioLiveData(self):
 
         pass
+
+    ################### PORTFOLIO LIVE DATA ###################
 
 if __name__ == "__main__":
     

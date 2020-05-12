@@ -4,8 +4,8 @@ from AssetClass import Asset
 
 # Import mlfinlab > pip install mlfinlab
 from mlfinlab.data_structures import standard_data_structures
-from mlfinlab.data_structures import get_ema_dollar_imbalance_bars, get_ema_tick_imbalance_bars, get_ema_volume_imbalance_bars
-from mlfinlab.data_structures import get_ema_dollar_run_bars, get_ema_tick_run_bars, get_ema_volume_run_bars
+#from mlfinlab.data_structures import get_ema_dollar_imbalance_bars, get_ema_tick_imbalance_bars, get_ema_volume_imbalance_bars
+#from mlfinlab.data_structures import get_ema_dollar_run_bars, get_ema_tick_run_bars, get_ema_volume_run_bars
 
 # Import utils:
 import os, glob, pprint
@@ -29,7 +29,8 @@ class ResearchStudy(Portfolio):
 
     def __init__(self, assetsList, formOrRead, sampleFormat='', dateHourString=''):
 
-        # The generated data will be in PORTFOLIO._portfolioDict
+        # We will form the portofolio > depending on if we want to read or request the data.
+        # The generated data will be in PORTFOLIO._portfolioDict:
 
         if formOrRead == 'form':
 
@@ -53,19 +54,23 @@ class ResearchStudy(Portfolio):
 
     def _generateLogReturns(self):
 
-        # Generates returns based on some metric.
+        # Generates returns based on some representation of the data:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
             print(f'[{self._generateLogReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+
+            # Generate the log returns and drop the empty data points:
             eachAssetDataFrame['Returns'] = np.log(eachAssetDataFrame.close/eachAssetDataFrame.close.shift(1))
             eachAssetDataFrame.dropna(how='any', inplace=True)
 
     def _generateRawReturns(self):
 
-        # Generates returns based on some metric.
+        # Generates returns based on some representation of the data:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
             print(f'[{self._generateRawReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+
+            # Generate the raw returns and drop the empty data points:
             eachAssetDataFrame['Returns'] = eachAssetDataFrame.close.pct_change()
             eachAssetDataFrame.dropna(how='any', inplace=True)
 
@@ -73,6 +78,8 @@ class ResearchStudy(Portfolio):
 
         # Loop for all the assets:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
+
+            # Generate the mid column price:
             eachAssetDataFrame[f'{eachAssetName}_mid_price'] = round((eachAssetDataFrame[f'{eachAssetName}_bid_price'] + eachAssetDataFrame[f'{eachAssetName}_ask_price'])/2, 5)
 
     ######################### RETURNS #########################
@@ -81,73 +88,39 @@ class ResearchStudy(Portfolio):
 
     def _generateTickBars(self, endDate):
 
+        # Generate tick bar representations:
         tickBars = {}
         homeStr = os.path.expandvars('${HOME}')
+        thresholdVariable = 5500
+
         # Loop for all the assets:
         for eachAssetName in self.PORTFOLIO._portfolioDict:
 
-            # Tick Bars
-            # The timestamp doesn't need to be as index > if it is as index gives error.
+            # Tick Bars > We need to have ticks in the CSV no other form or aggregation.
+            # The timestamp doesn't need to be as index > if it is as an index gives error.
             READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
-            bars = standard_data_structures.get_tick_bars(READ_PATH, threshold=5500, batch_size=1000000, verbose=False)
-            # Add them to the dict:
+            bars = standard_data_structures.get_tick_bars(READ_PATH, threshold=thresholdVariable, batch_size=1000000, verbose=False)
+
+            # Add them to the dict based on their symbol:
             tickBars[eachAssetName] = bars
 
     def _generateDollarBars(self, endDate):
 
+        # Generate dollar bar representations:
         dollarBars = {}
         homeStr = os.path.expandvars('${HOME}')
+        thresholdVariable = 70000000
+
         # Loop for all the assets:
         for eachAssetName in self.PORTFOLIO._portfolioDict:
 
-            # Dollar Bars
+            # Dollar Bars > We need to have ticks in the CSV no other form or aggregation.
             # The timestamp doesn't need to be as index > if it is as index gives error.
             READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
-            bars = standard_data_structures.get_dollar_bars(READ_PATH, threshold=70000000, batch_size=1000000, verbose=True)
-            # Add them to the dict:
+            bars = standard_data_structures.get_dollar_bars(READ_PATH, threshold=thresholdVariable, batch_size=1000000, verbose=True)
+
+            # Add them to the dict based on their symbol:
             dollarBars[eachAssetName] = bars
-
-    def getEMADollarImbalanceBars(self, endDate):
-
-        dollarBars = {}
-        homeStr = os.path.expandvars('${HOME}')
-        # Loop for all the assets:
-        for eachAssetName in self.PORTFOLIO._portfolioDict:
-
-            # Dollar Bars
-            # The timestamp doesn't need to be as index > if it is as index gives error.
-            READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
-            bars = standard_data_structures.get_dollar_bars(READ_PATH, threshold=70000000, batch_size=1000000, verbose=True)
-            # Add them to the dict:
-            dollarBars[eachAssetName] = bars
-
-    def getEMAVolumeImbalanceBars(self, endDate):
-
-        dollarBars = {}
-        homeStr = os.path.expandvars('${HOME}')
-        # Loop for all the assets:
-        for eachAssetName in self.PORTFOLIO._portfolioDict:
-
-            # Dollar Bars
-            # The timestamp doesn't need to be as index > if it is as index gives error.
-            READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
-            bars = standard_data_structures.get_dollar_bars(READ_PATH, threshold=70000000, batch_size=1000000, verbose=True)
-            # Add them to the dict:
-            dollarBars[eachAssetName] = bars
-
-    def getEMATickImbalanceBars(self, endDate):
-
-        dollarBars = {}
-        homeStr = os.path.expandvars('${HOME}')
-        # Loop for all the assets:
-        for eachAssetName in self.PORTFOLIO._portfolioDict:
-
-            # Dollar Bars
-            # The timestamp doesn't need to be as index > if it is as index gives error.
-            READ_PATH = f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
-            bars = standard_data_structures.get_dollar_bars(READ_PATH, threshold=70000000, batch_size=1000000, verbose=True)
-            # Add them to the dict:
-            dollarBars[eachAssetName] = bars 
 
     ######################### REPRESENTATIONS #########################
 
@@ -155,7 +128,7 @@ class ResearchStudy(Portfolio):
 
     def _plotReturns(self, saveDirectory='', showIt=False):
 
-        # Generates returns based on some metric.
+        # Plot the returns of each asset in the portfolio:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
             print(f'[{self._plotReturns.__name__}] - Looping for asset <{eachAssetName}>...')
@@ -180,7 +153,7 @@ class ResearchStudy(Portfolio):
 
     def _plotDistribution(self, saveDirectory='', showIt=False):
 
-        # Generates returns based on some metric.
+        # Plot the returns of each asset in the portfolio:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
             print(f'[{self._plotDistribution.__name__}] - Looping for asset <{eachAssetName}>...')
@@ -213,40 +186,41 @@ class ResearchStudy(Portfolio):
             if showIt:
                 plt.show()
 
+    ######################### PLOTS #########################
+
 if __name__ == "__main__":
     
-    # Create some variables:
+    # Create some path variables > Point them to the specific folder:
     homeStr = os.path.expanduser("~")
     plotsSaveDirectory = os.path.expandvars(f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Plots')
     dataframesSaveDirectory = os.path.expandvars(f'{homeStr}/Desktop/AlphaTeamDX/RegimeAnalysisContentSeries/Data')
 
     # Create some assets:
-    assetsList = [#Asset('WS30', 'traditional', 'historical'), # Index US
-                  #Asset('XAUUSD', 'traditional', 'historical'), # CryptoCurrency
-                  #Asset('GDAXIm', 'traditional', 'historical'), # Index EUR
+    assetsList = [Asset('WS30', 'traditional', 'historical'), # Index US
+                  Asset('XAUUSD', 'traditional', 'historical'), # CryptoCurrency
+                  Asset('GDAXIm', 'traditional', 'historical'), # Index EUR
                   Asset('EURUSD', 'traditional', 'historical'), # Major
                   Asset('GBPJPY', 'traditional', 'historical')] # Minor
 
     # Create the research study object:
     # NOTE: If the FTP server gets stuck, just comment some assets and make it with less.
-    # Or get it with tick or another offset string:
-    R_STUDY = ResearchStudy(assetsList, formOrRead='form', sampleFormat='tick')
+    # Get the tick data or some time aggregated representation: 
+    #R_STUDY = ResearchStudy(assetsList, formOrRead='form', sampleFormat='tick')
     #R_STUDY = ResearchStudy(assetsList, formOrRead='form', sampleFormat='5T')
 
     # Or read it from file:
-    #R_STUDY = ResearchStudy(assetsList, formOrRead='read', dateHourString='2020-02-04_23')
+    R_STUDY = ResearchStudy(assetsList, formOrRead='read', dateHourString='2020-02-04_23')
     
-    # Print the dict:
+    # Print the whole dict, some asset or the shape:
     #pprint.pprint(R_STUDY.PORTFOLIO._portfolioDict)
     #pprint.pprint(R_STUDY.PORTFOLIO._portfolioDict['WS30'])
     #pprint.pprint(R_STUDY.PORTFOLIO._portfolioDict['WS30'].shape)
 
     # Apply the reseach study we want:
-    #R_STUDY._generateRawReturns()
+    R_STUDY._generateRawReturns()
     #R_STUDY._generateLogReturns()
 
-    #R_STUDY._plotReturns(plotsSaveDirectory)
-    #R_STUDY._plotDistribution(plotsSaveDirectory)
-
-    #pprint.pprint(R_STUDY.PORTFOLIO._portfolioDict)
+    # Generate the plots:
+    R_STUDY._plotReturns(plotsSaveDirectory)
+    R_STUDY._plotDistribution(plotsSaveDirectory)
     
