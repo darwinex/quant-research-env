@@ -57,7 +57,7 @@ class Asset(object):
 
                 # Create the DF and the dates:
                 self._dataDF = None
-                self.startDate, self.endDate = '2020-02-03', '2020-02-05'
+                self.startDate, self.endDate = '2020-02-03','2020-02-10'#'2020-02-05'
 
                 # Assign the method to a more general one:
                 self._getData = self._getHistoricalDataOfTraditionalAsset

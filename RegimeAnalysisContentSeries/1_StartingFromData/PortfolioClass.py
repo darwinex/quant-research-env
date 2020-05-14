@@ -33,7 +33,7 @@ class Portfolio(Asset):
             eachAssetObject._getData(sampleFormat)
             
             # Quit the FTP connection for cleaning:
-            eachAssetObject.DOWNLOADER._ftpObj.quit()
+            #eachAssetObject.DOWNLOADER._ftpObj.quit()
             self._portfolioDict[eachAssetObject.assetName] = eachAssetObject._dataDF
 
         # Print the dict:

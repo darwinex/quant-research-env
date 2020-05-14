@@ -8,7 +8,9 @@ from mlfinlab.data_structures import standard_data_structures
 #from mlfinlab.data_structures import get_ema_dollar_run_bars, get_ema_tick_run_bars, get_ema_volume_run_bars
 
 # Import utils:
-import os, glob, pprint
+import os, glob, pprint, logging
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
 import numpy as np, pandas as pd
 
 ### Import plotting things:
@@ -19,6 +21,18 @@ from scipy.stats import norm, laplace, johnsonsu
 ### Set the style for the plots.
 from matplotlib import style
 style.use('dark_background')
+
+##################### LOG CONFIGURATION ###################
+LOG_FORMAT = '%(levelname)s %(asctime)s - %(message)s'
+logging.basicConfig(filename=f'./SystemComponent.log', 
+                            level=logging.INFO,
+                            format=LOG_FORMAT,
+                            filemode='w')
+logger = logging.getLogger()
+logger.addHandler(logging.StreamHandler())
+logger.addHandler(RotatingFileHandler('./SystemComponent.log', mode='a', maxBytes=5*1024*1024, 
+                                 backupCount=2, encoding=None, delay=0))
+###########################################################
 
 class ResearchStudy(Portfolio):
 
@@ -47,7 +61,7 @@ class ResearchStudy(Portfolio):
         # Save each dataframe:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
-            print(f'[{self._generateLogReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+            logger.warning(f'[{self._generateLogReturns.__name__}] - Looping for asset <{eachAssetName}>...')
             eachAssetDataFrame.to_csv(saveDirectory + f'/{eachAssetName}_DF.csv')
 
     ######################### RETURNS #########################
@@ -57,7 +71,7 @@ class ResearchStudy(Portfolio):
         # Generates returns based on some representation of the data:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
-            print(f'[{self._generateLogReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+            logger.warning(f'[{self._generateLogReturns.__name__}] - Looping for asset <{eachAssetName}>...')
 
             # Generate the log returns and drop the empty data points:
             eachAssetDataFrame['Returns'] = np.log(eachAssetDataFrame.close/eachAssetDataFrame.close.shift(1))
@@ -68,7 +82,7 @@ class ResearchStudy(Portfolio):
         # Generates returns based on some representation of the data:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
-            print(f'[{self._generateRawReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+            logger.warning(f'[{self._generateRawReturns.__name__}] - Looping for asset <{eachAssetName}>...')
 
             # Generate the raw returns and drop the empty data points:
             eachAssetDataFrame['Returns'] = eachAssetDataFrame.close.pct_change()
@@ -139,7 +153,7 @@ class ResearchStudy(Portfolio):
         # Plot the returns of each asset in the portfolio:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
-            print(f'[{self._plotReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+            logger.warning(f'[{self._plotReturns.__name__}] - Looping for asset <{eachAssetName}>...')
 
             # Plot the returns:
             f1, ax = plt.subplots(figsize = (10,5))
@@ -166,7 +180,7 @@ class ResearchStudy(Portfolio):
         # Plot the returns of each asset in the portfolio:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
 
-            print(f'[{self._plotDistribution.__name__}] - Looping for asset <{eachAssetName}>...')
+            logger.warning(f'[{self._plotDistribution.__name__}] - Looping for asset <{eachAssetName}>...')
 
             # Plot the distribution and KDE:
             f1, ax = plt.subplots(figsize = (10,5))
@@ -197,42 +211,4 @@ class ResearchStudy(Portfolio):
                 plt.show()
 
     ######################### PLOTS #########################
-
-if __name__ == "__main__":
-    
-    # Create some path variables > Point them to the specific folder:
-    homeStr = os.path.expanduser("~")
-    plotsSaveDirectory = os.path.expandvars(f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Plots')
-    dataframesSaveDirectory = os.path.expandvars(f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data')
-
-    # Create some assets:
-    assetsList = [Asset('WS30', 'traditional', 'historical'), # Index US
-                  Asset('XAUUSD', 'traditional', 'historical'), # CryptoCurrency
-                  Asset('GDAXIm', 'traditional', 'historical'), # Index EUR
-                  Asset('EURUSD', 'traditional', 'historical'), # Major
-                  Asset('GBPJPY', 'traditional', 'historical')] # Minor
-
-    # Create the research study object:
-    # NOTE: If the FTP server gets stuck, just comment some assets and make it with less.
-    # Get the tick data or some time aggregated representation: 
-    #R_STUDY = ResearchStudy(assetsList, formOrRead='form', sampleFormat='tick')
-    #R_STUDY = ResearchStudy(assetsList, formOrRead='form', sampleFormat='5T')
-
-    # Or read it from file:
-    # NOTE: If the data is not in the /Data directory, we will need to change the path in the AssetClass _read method.
-    R_STUDY = ResearchStudy(assetsList, formOrRead='read', dateHourString='2020-02-04_23')
-    
-    # Print the whole dict, some asset or the shape:
-    #pprint.pprint(R_STUDY.PORTFOLIO._portfolioDict)
-    #pprint.pprint(R_STUDY.PORTFOLIO._portfolioDict['WS30'])
-    #pprint.pprint(R_STUDY.PORTFOLIO._portfolioDict['WS30'].shape)
-
-    # Apply the reseach study we want:
-    R_STUDY._generateRawReturns()
-    #R_STUDY._generateLogReturns()
-    R_STUDY._generateRollingMean()
-
-    # Generate the plots:
-    R_STUDY._plotReturns(plotsSaveDirectory, showIt=True)
-    R_STUDY._plotDistribution(plotsSaveDirectory, showIt=True)
     
