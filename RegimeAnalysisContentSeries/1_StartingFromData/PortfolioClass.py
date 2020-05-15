@@ -65,13 +65,13 @@ if __name__ == "__main__":
     
     assetsList = [Asset('WS30', 'traditional', 'historical'), # Index US
                   Asset('XAUUSD', 'traditional', 'historical'), # CryptoCurrency
-                  Asset('STOXX50E', 'traditional', 'historical'), # Index EUR
+                  Asset('GDAXIm', 'traditional', 'historical'), # Index EUR
                   Asset('EURUSD', 'traditional', 'historical'), # Major
                   Asset('GBPJPY', 'traditional', 'historical')] # Minor
 
     PORTFOLIO = Portfolio(assetsList)
     #PORTFOLIO._formPortfolioHistoricalData('tick')
-    PORTFOLIO._readPortfolioHistoricalData('2018-01-02_23')
+    PORTFOLIO._readPortfolioHistoricalData('2020-02-04_23')
     
     # Print it:
     pprint.pprint(PORTFOLIO._portfolioDict)

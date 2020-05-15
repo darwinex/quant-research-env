@@ -148,7 +148,7 @@ class ResearchStudy(Portfolio):
 
     ######################### PLOTS #########################
 
-    def _plotReturns(self, saveDirectory='', showIt=False):
+    def _plotReturns(self, saveDirectory='', showIt=False, rollingMeanOrNot=False):
 
         # Plot the returns of each asset in the portfolio:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
@@ -159,8 +159,9 @@ class ResearchStudy(Portfolio):
             f1, ax = plt.subplots(figsize = (10,5))
             f1.canvas.set_window_title('Returns Plot')
             plt.plot(eachAssetDataFrame.Returns.values, label='Returns')
-            plt.plot(eachAssetDataFrame[f'{eachAssetName}_roll_mean'].values, label='RollingMean', linewidth=3.0)
-            plt.plot(eachAssetDataFrame[f'{eachAssetName}_roll_std'].values, label='RollingStd', linewidth=3.0)
+            if rollingMeanOrNot:
+                plt.plot(eachAssetDataFrame[f'{eachAssetName}_roll_mean'].values, label='RollingMean', linewidth=3.0)
+                plt.plot(eachAssetDataFrame[f'{eachAssetName}_roll_std'].values, label='RollingStd', linewidth=3.0)
             plt.grid(linestyle='dotted')
             plt.xlabel('Observations')
             plt.ylabel('Returns')
@@ -211,4 +212,3 @@ class ResearchStudy(Portfolio):
                 plt.show()
 
     ######################### PLOTS #########################
-    
