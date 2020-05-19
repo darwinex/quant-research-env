@@ -64,6 +64,14 @@ class ResearchStudy(Portfolio):
             logger.warning(f'[{self._generateLogReturns.__name__}] - Looping for asset <{eachAssetName}>...')
             eachAssetDataFrame.to_csv(saveDirectory + f'/{eachAssetName}_DF.csv')
 
+    def _saveGeneratedDataFramesOtherBars(self, saveDirectory):
+
+        # Save each dataframe:
+        for eachAssetName, eachAssetDataFrame in self.ALTERNATIVE_BARS.items():
+
+            logger.warning(f'[{self._generateLogReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+            eachAssetDataFrame.to_csv(saveDirectory + f'/{eachAssetName}_Others_DF.csv')
+
     ######################### RETURNS #########################
 
     def _generateLogReturns(self):
@@ -108,41 +116,77 @@ class ResearchStudy(Portfolio):
 
     ######################### REPRESENTATIONS #########################
 
-    def _generateTickBars(self, endDate):
+    def _generateTickBars(self, endDate, threshold):
 
         # Generate tick bar representations:
-        tickBars = {}
+        self.ALTERNATIVE_BARS = {}
         homeStr = os.path.expandvars('${HOME}')
-        thresholdVariable = 5500
+        thresholdVariable = threshold
 
         # Loop for all the assets:
         for eachAssetName in self.PORTFOLIO._portfolioDict:
 
             # Tick Bars > We need to have ticks in the CSV no other form or aggregation.
             # The timestamp doesn't need to be as index > if it is as an index gives error.
-            READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
-            bars = standard_data_structures.get_tick_bars(READ_PATH, threshold=thresholdVariable, batch_size=1000000, verbose=False)
+            READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_Ticks/{eachAssetName}_BID_ASK_{endDate}.csv'
+
+            # Read the data:
+            bars = pd.read_csv(READ_PATH)
+
+            # Generate the mid column price:
+            bars[f'{eachAssetName}_mid_price'] = round((bars[f'{eachAssetName}_bid_price'] + bars[f'{eachAssetName}_ask_price'])/2, 5)
+
+            # Get the suitable columns:
+            bars = bars[[f'{eachAssetName}_timestamp', f'{eachAssetName}_mid_price', f'{eachAssetName}_ask_size']]
+            print(bars.head())
+
+            # Generate the tick bars.
+            bars = standard_data_structures.get_tick_bars(bars, threshold=thresholdVariable, batch_size=100000, verbose=False)
+
+            # Get log returns for this bars:
+            bars['Returns'] = np.log(bars.close/bars.close.shift(1))
+            bars.dropna(how='any', inplace=True)
+            print(f'TICK BARS for: {eachAssetName} >> Shape: {bars.shape}')
+            print(bars.head())
 
             # Add them to the dict based on their symbol:
-            tickBars[eachAssetName] = bars
+            self.ALTERNATIVE_BARS[eachAssetName] = bars
 
-    def _generateDollarBars(self, endDate):
+    def _generateDollarBars(self, endDate, threshold):
 
         # Generate dollar bar representations:
-        dollarBars = {}
+        self.ALTERNATIVE_BARS = {}
         homeStr = os.path.expandvars('${HOME}')
-        thresholdVariable = 70000000
+        thresholdVariable = threshold
 
         # Loop for all the assets:
         for eachAssetName in self.PORTFOLIO._portfolioDict:
 
             # Dollar Bars > We need to have ticks in the CSV no other form or aggregation.
             # The timestamp doesn't need to be as index > if it is as index gives error.
-            READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/{eachAssetName}_BID_ASK_{endDate}.csv'
-            bars = standard_data_structures.get_dollar_bars(READ_PATH, threshold=thresholdVariable, batch_size=1000000, verbose=True)
+            READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_Ticks/{eachAssetName}_BID_ASK_{endDate}.csv'
+
+            # Read the data:
+            bars = pd.read_csv(READ_PATH)
+
+            # Generate the mid column price:
+            bars[f'{eachAssetName}_mid_price'] = round((bars[f'{eachAssetName}_bid_price'] + bars[f'{eachAssetName}_ask_price'])/2, 5)
+
+            # Get the suitable columns:
+            bars = bars[[f'{eachAssetName}_timestamp', f'{eachAssetName}_mid_price', f'{eachAssetName}_ask_size']]
+            print(bars.head())
+
+            # Generate the tick bars.
+            bars = standard_data_structures.get_dollar_bars(bars, threshold=thresholdVariable, batch_size=100000, verbose=True)
+
+            # Get log returns for this bars:
+            bars['Returns'] = np.log(bars.close/bars.close.shift(1))
+            bars.dropna(how='any', inplace=True)
+            print(f'DOLLAR BARS for: {eachAssetName} >> Shape: {bars.shape}')
+            print(bars.head())
 
             # Add them to the dict based on their symbol:
-            dollarBars[eachAssetName] = bars
+            self.ALTERNATIVE_BARS[eachAssetName] = bars
 
     ######################### REPRESENTATIONS #########################
 
@@ -176,10 +220,73 @@ class ResearchStudy(Portfolio):
             if showIt: 
                 plt.show()
 
+    def _plotReturnsOtherBars(self, saveDirectory='', showIt=False, rollingMeanOrNot=False):
+
+        # Plot the returns of each asset in the portfolio:
+        for eachAssetName, eachAssetDataFrame in self.ALTERNATIVE_BARS.items():
+
+            logger.warning(f'[{self._plotReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+
+            # Plot the returns:
+            f1, ax = plt.subplots(figsize = (10,5))
+            f1.canvas.set_window_title('Returns Plot')
+            plt.plot(eachAssetDataFrame.Returns.values, label='Returns')
+            if rollingMeanOrNot:
+                plt.plot(eachAssetDataFrame[f'{eachAssetName}_roll_mean'].values, label='RollingMean', linewidth=3.0)
+                plt.plot(eachAssetDataFrame[f'{eachAssetName}_roll_std'].values, label='RollingStd', linewidth=3.0)
+            plt.grid(linestyle='dotted')
+            plt.xlabel('Observations')
+            plt.ylabel('Returns')
+            plt.title(f'Asset: {eachAssetName} -- Returns Plot (First difference)')
+            plt.legend(loc='best')
+            plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+
+            # In PNG:
+            plt.savefig(saveDirectory + f'/returnsPlot_{eachAssetName}.png')
+
+            # Show it:
+            if showIt: 
+                plt.show()
+
     def _plotDistribution(self, saveDirectory='', showIt=False):
 
         # Plot the returns of each asset in the portfolio:
         for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
+
+            logger.warning(f'[{self._plotDistribution.__name__}] - Looping for asset <{eachAssetName}>...')
+
+            # Plot the distribution and KDE:
+            f1, ax = plt.subplots(figsize = (10,5))
+            f1.canvas.set_window_title('Distribution Plot')
+            sns.distplot(eachAssetDataFrame.Returns.values, color="dodgerblue", label=f'Return Distribution', fit=norm, 
+                    hist_kws={"rwidth":0.90,'edgecolor':'white', 'alpha':1.0},
+                    fit_kws={"color":"coral", 'linewidth':2.5, 'label':'Fit (Normal) Line'},
+                    kde_kws={"color":"limegreen", 'linewidth':2.5, 'label':'KDE Line'})
+            sns.distplot(eachAssetDataFrame.Returns.values, color="dodgerblue", fit=laplace, 
+                    hist_kws={"rwidth":0.90,'edgecolor':'white', 'alpha':1.0},
+                    fit_kws={"color":"gold", 'linestyle':'solid', 'linewidth':2.5, 'label':'Fit (Laplace) Line'})
+            sns.distplot(eachAssetDataFrame.Returns.values, color="dodgerblue", fit=johnsonsu, 
+                    hist_kws={"rwidth":0.90,'edgecolor':'white', 'alpha':1.0},
+                    fit_kws={"color":"darkviolet", 'linestyle':'solid', 'linewidth':2.5, 'label':'Fit (Johnson) Line'})
+
+            # Add more than one distplot will add several KDE lines to see the different distributions.
+            plt.grid(linestyle='dotted')
+            plt.xlabel(f'Returns Values', horizontalalignment='center', verticalalignment='center', fontsize=14, labelpad=20)
+            plt.title(f'Asset: {eachAssetName} -- Distribution Returns and KDE Plot')
+            plt.legend(loc='best')
+            plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+
+            # In PNG:
+            plt.savefig(saveDirectory + f'/distributionPlot_{eachAssetName}.png')
+
+            # Show it:
+            if showIt:
+                plt.show()
+
+    def _plotDistributionOtherBars(self, saveDirectory='', showIt=False):
+
+        # Plot the returns of each asset in the portfolio:
+        for eachAssetName, eachAssetDataFrame in self.ALTERNATIVE_BARS.items():
 
             logger.warning(f'[{self._plotDistribution.__name__}] - Looping for asset <{eachAssetName}>...')
 

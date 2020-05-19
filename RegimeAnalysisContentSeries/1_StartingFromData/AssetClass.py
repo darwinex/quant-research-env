@@ -129,7 +129,7 @@ class Asset(object):
         # Read the data from the .csv file:
         # NOTE: CHANGE THIS TO POINT TO THE SPECIFIC DIRECTORY:
         homeStr = os.path.expandvars('${HOME}')
-        READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_5T/{assetName}_BID_ASK_{endDate}.csv'
+        READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_Ticks/{assetName}_BID_ASK_{endDate}.csv'
 
         # Load in df:
         self._dataDF = pd.read_csv(READ_PATH, index_col=0)
