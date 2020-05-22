@@ -1,6 +1,6 @@
 # Imports:
-from PortfolioClass import Portfolio
-from ResearchStudyClass import ResearchStudy
+from RegimeAnalysisContentSeries.Python_Classes.PortfolioClass import Portfolio
+from RegimeAnalysisContentSeries.Python_Classes.ResearchStudyClass import ResearchStudy
 
 # Import utils:
 import os, glob

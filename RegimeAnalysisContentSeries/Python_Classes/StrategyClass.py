@@ -1,6 +1,6 @@
 # Imports:
-from PortfolioClass import Portfolio
-from ModelClass import Model
+from RegimeAnalysisContentSeries.Python_Classes.PortfolioClass import Portfolio
+from RegimeAnalysisContentSeries.Python_Classes.ModelClass import Model
 from darwinexapis.API.InvestorAccountInfoAPI.DWX_AccInfo_API import DWX_AccInfo_API
 from darwinexapis.API.TradingAPI.DWX_Trading_API import DWX_Trading_API
 

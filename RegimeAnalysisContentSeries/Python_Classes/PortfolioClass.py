@@ -1,5 +1,5 @@
 # Imports:
-from AssetClass import Asset
+from RegimeAnalysisContentSeries.Python_Classes.AssetClass import Asset
 
 # Import utils:
 import os, glob, pprint

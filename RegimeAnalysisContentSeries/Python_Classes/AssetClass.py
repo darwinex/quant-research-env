@@ -35,7 +35,7 @@ class Asset(object):
         if assetType == 'traditional':
 
             # Create the downloader object:
-            from FTP_TraditionalAssets import FTP_CREDENTIALS
+            from RegimeAnalysisContentSeries.Python_Classes.FTP_TraditionalAssets import FTP_CREDENTIALS
             self.DOWNLOADER = DWX_TickData_Downloader_API(dwx_ftp_user=FTP_CREDENTIALS['username'], 
                                                      dwx_ftp_pass=FTP_CREDENTIALS['password'],
                                                      dwx_ftp_hostname=FTP_CREDENTIALS['server'],
@@ -44,7 +44,7 @@ class Asset(object):
         elif assetType == 'darwin':
 
             # Create the downloader object:
-            from FTP_DarwinAssets import FTP_CREDENTIALS
+            from RegimeAnalysisContentSeries.Python_Classes.FTP_DarwinAssets import FTP_CREDENTIALS
             self.DOWNLOADER = DWX_Darwin_Data_Analytics_API(dwx_ftp_user=FTP_CREDENTIALS['username'], 
                                                             dwx_ftp_pass=FTP_CREDENTIALS['password'],
                                                             dwx_ftp_hostname=FTP_CREDENTIALS['server'],
@@ -130,6 +130,7 @@ class Asset(object):
         # NOTE: CHANGE THIS TO POINT TO THE SPECIFIC DIRECTORY:
         homeStr = os.path.expandvars('${HOME}')
         READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_Ticks/{assetName}_BID_ASK_{endDate}.csv'
+        #READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_5T/{assetName}_BID_ASK_{endDate}.csv'
 
         # Load in df:
         self._dataDF = pd.read_csv(READ_PATH, index_col=0)

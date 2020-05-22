@@ -1,6 +1,6 @@
 # Imports:
-from PortfolioClass import Portfolio
-from AssetClass import Asset
+from RegimeAnalysisContentSeries.Python_Classes.PortfolioClass import Portfolio
+from RegimeAnalysisContentSeries.Python_Classes.AssetClass import Asset
 
 # Import mlfinlab > pip install mlfinlab
 from mlfinlab.data_structures import standard_data_structures
@@ -17,6 +17,8 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns # pip install seaborn
 from scipy.stats import norm, laplace, johnsonsu
+from statsmodels.graphics.gofplots import qqplot
+from scipy.stats import normaltest
 
 ### Set the style for the plots.
 from matplotlib import style
@@ -225,7 +227,7 @@ class ResearchStudy(Portfolio):
         # Plot the returns of each asset in the portfolio:
         for eachAssetName, eachAssetDataFrame in self.ALTERNATIVE_BARS.items():
 
-            logger.warning(f'[{self._plotReturns.__name__}] - Looping for asset <{eachAssetName}>...')
+            logger.warning(f'[{self._plotReturnsOtherBars.__name__}] - Looping for asset <{eachAssetName}>...')
 
             # Plot the returns:
             f1, ax = plt.subplots(figsize = (10,5))
@@ -272,9 +274,18 @@ class ResearchStudy(Portfolio):
             # Add more than one distplot will add several KDE lines to see the different distributions.
             plt.grid(linestyle='dotted')
             plt.xlabel(f'Returns Values', horizontalalignment='center', verticalalignment='center', fontsize=14, labelpad=20)
-            plt.title(f'Asset: {eachAssetName} -- Distribution Returns and KDE Plot')
+            plt.title(f'Asset: {eachAssetName} -- Distribution Returns and KDE Plot > Skew: {round(eachAssetDataFrame.Returns.skew(),3)} // Kurtosis: {round(eachAssetDataFrame.Returns.kurtosis(),3)}')
             plt.legend(loc='best')
             plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+
+            # Do test:
+            statistic, p_value = normaltest(eachAssetDataFrame.Returns.values)
+            print(f'Asset: {eachAssetName} -- Statistics: {statistic} // p-value: {p_value}')
+            alpha = 0.05
+            if p_value > alpha: 
+                print(f'P-value is GREATER than alpha ({alpha}) >> Fail to reject H0 (Sample seems Normal)')
+            else:
+                print(f'P-value is LESS/EQUAL than alpha ({alpha}) >> Reject H0 (Sample does NOT look Normal)')
 
             # In PNG:
             plt.savefig(saveDirectory + f'/distributionPlot_{eachAssetName}.png')
@@ -285,10 +296,10 @@ class ResearchStudy(Portfolio):
 
     def _plotDistributionOtherBars(self, saveDirectory='', showIt=False):
 
-        # Plot the returns of each asset in the portfolio:
+        # Plot the distribution of each asset in the portfolio:
         for eachAssetName, eachAssetDataFrame in self.ALTERNATIVE_BARS.items():
 
-            logger.warning(f'[{self._plotDistribution.__name__}] - Looping for asset <{eachAssetName}>...')
+            logger.warning(f'[{self._plotDistributionOtherBars.__name__}] - Looping for asset <{eachAssetName}>...')
 
             # Plot the distribution and KDE:
             f1, ax = plt.subplots(figsize = (10,5))
@@ -307,12 +318,69 @@ class ResearchStudy(Portfolio):
             # Add more than one distplot will add several KDE lines to see the different distributions.
             plt.grid(linestyle='dotted')
             plt.xlabel(f'Returns Values', horizontalalignment='center', verticalalignment='center', fontsize=14, labelpad=20)
-            plt.title(f'Asset: {eachAssetName} -- Distribution Returns and KDE Plot')
+            plt.title(f'Asset: {eachAssetName} -- Distribution Returns and KDE Plot > Skew: {round(eachAssetDataFrame.Returns.skew(),3)} // Kurtosis: {round(eachAssetDataFrame.Returns.kurtosis(),3)}')
             plt.legend(loc='best')
             plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
 
+            # Do test:
+            statistic, p_value = normaltest(eachAssetDataFrame.Returns.values)
+            print(f'Asset: {eachAssetName} -- Statistics: {statistic} // p-value: {p_value}')
+            alpha = 0.05
+            if p_value > alpha: 
+                print(f'P-value is GREATER than alpha ({alpha}) >> Fail to reject H0 (Sample seems Normal)')
+            else:
+                print(f'P-value is LESS/EQUAL than alpha ({alpha}) >> Reject H0 (Sample does NOT look Normal)')
+
             # In PNG:
             plt.savefig(saveDirectory + f'/distributionPlot_{eachAssetName}.png')
+
+            # Show it:
+            if showIt:
+                plt.show()
+
+    def _plotQQPlot(self, saveDirectory='', showIt=False):
+
+        # Plot the quantile plot of each asset in the portfolio:
+        for eachAssetName, eachAssetDataFrame in self.PORTFOLIO._portfolioDict.items():
+
+            logger.warning(f'[{self._plotQQPlot.__name__}] - Looping for asset <{eachAssetName}>...')
+
+            # Plot the QQplot:
+            qqplot(eachAssetDataFrame.Returns.values, line='s')
+
+            # Add more variables:
+            plt.grid(linestyle='dotted')
+            plt.xlabel('Theoretical Quantiles', horizontalalignment='center', verticalalignment='center', fontsize=14, labelpad=20)
+            plt.ylabel('Sample Quantiles', horizontalalignment='center', verticalalignment='center', fontsize=14, labelpad=20)
+            plt.title(f'Asset: {eachAssetName} -- Quantile-Quantile (QQ) Plot')
+            plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+
+            # In PNG:
+            plt.savefig(saveDirectory + f'/QQPlot_{eachAssetName}.png')
+
+            # Show it:
+            if showIt:
+                plt.show()
+
+    def _plotQQPlotOtherBars(self, saveDirectory='', showIt=False):
+
+        # Plot the quantile plot of each asset in the portfolio:
+        for eachAssetName, eachAssetDataFrame in self.ALTERNATIVE_BARS.items():
+
+            logger.warning(f'[{self._plotQQPlotOtherBars.__name__}] - Looping for asset <{eachAssetName}>...')
+
+            # Plot the QQplot:
+            qqplot(eachAssetDataFrame.Returns.values, line='s')
+
+            # Add more variables:
+            plt.grid(linestyle='dotted')
+            plt.xlabel('Theoretical Quantiles', horizontalalignment='center', verticalalignment='center', fontsize=14, labelpad=20)
+            plt.ylabel('Sample Quantiles', horizontalalignment='center', verticalalignment='center', fontsize=14, labelpad=20)
+            plt.title(f'Asset: {eachAssetName} -- Quantile-Quantile (QQ) Plot')
+            plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
+
+            # In PNG:
+            plt.savefig(saveDirectory + f'/QQPlot_{eachAssetName}.png')
 
             # Show it:
             if showIt:

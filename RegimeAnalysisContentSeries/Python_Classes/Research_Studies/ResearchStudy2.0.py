@@ -1,6 +1,11 @@
+### First, we append the previous level to the sys.path var:
+import sys, os
+### We append the repository path to the sys.path so that we can import packages easily.
+sys.path.append(os.path.expandvars('${HOME}/Desktop/quant-research-env/'))
+
 # Import the class:
-from ResearchStudyClass import ResearchStudy
-from AssetClass import Asset
+from RegimeAnalysisContentSeries.Python_Classes.ResearchStudyClass import ResearchStudy
+from RegimeAnalysisContentSeries.Python_Classes.AssetClass import Asset
 import os
 
 # Create some path variables > Point them to the specific folder:
@@ -25,8 +30,9 @@ R_STUDY._generateTickBars(endDate='2020-02-04_23', threshold=1522)
 #R_STUDY._generateDollarBars(endDate='2020-02-04_23', threshold=7000000000)
 
 # Generate the plots:
-R_STUDY._plotReturnsOtherBars(plotsSaveDirectory, showIt=True)
+#R_STUDY._plotReturnsOtherBars(plotsSaveDirectory, showIt=True)
 R_STUDY._plotDistributionOtherBars(plotsSaveDirectory, showIt=True)
+R_STUDY._plotQQPlotOtherBars(plotsSaveDirectory, showIt=True)
 
 # Save the generated dataframes:
-R_STUDY._saveGeneratedDataFramesOtherBars(dataframesSaveDirectory)
+#R_STUDY._saveGeneratedDataFramesOtherBars(dataframesSaveDirectory)
