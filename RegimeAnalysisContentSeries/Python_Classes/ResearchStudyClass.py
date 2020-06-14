@@ -1,3 +1,8 @@
+### First, we append the previous level to the sys.path var:
+import sys, os
+### We append the repository path to the sys.path so that we can import packages easily.
+sys.path.append(os.path.expandvars('${HOME}/Desktop/quant-research-env/'))
+
 # Imports:
 from RegimeAnalysisContentSeries.Python_Classes.PortfolioClass import Portfolio
 from RegimeAnalysisContentSeries.Python_Classes.AssetClass import Asset
@@ -8,7 +13,7 @@ from mlfinlab.data_structures import standard_data_structures
 #from mlfinlab.data_structures import get_ema_dollar_run_bars, get_ema_tick_run_bars, get_ema_volume_run_bars
 
 # Import utils:
-import os, glob, pprint, logging
+import glob, pprint, logging
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 import numpy as np, pandas as pd
@@ -21,8 +26,8 @@ from statsmodels.graphics.gofplots import qqplot
 from scipy.stats import normaltest
 
 ### Set the style for the plots.
-from matplotlib import style
-style.use('dark_background')
+#from matplotlib import style
+#style.use('dark_background')
 
 ##################### LOG CONFIGURATION ###################
 LOG_FORMAT = '%(levelname)s %(asctime)s - %(message)s'
@@ -43,7 +48,7 @@ class ResearchStudy(Portfolio):
     Specifically, it will take some data from that portfolio, makes some calculations and returns a result
     '''
 
-    def __init__(self, assetsList, formOrRead, sampleFormat='', dateHourString=''):
+    def __init__(self, assetsList, formOrRead, sampleFormat='', dateHourString='', readingPath=''):
 
         # We will form the portofolio > depending on if we want to read or request the data.
         # The generated data will be in PORTFOLIO._portfolioDict:
@@ -57,6 +62,11 @@ class ResearchStudy(Portfolio):
 
             self.PORTFOLIO = Portfolio(assetsList)
             self.PORTFOLIO._readPortfolioHistoricalData(dateHourString)
+
+        elif formOrRead == 'read_features':
+
+            self.PORTFOLIO = Portfolio(assetsList)
+            self.PORTFOLIO._readPortfolioFeaturesCsvs()
 
     def _saveGeneratedDataFrames(self, saveDirectory):
 

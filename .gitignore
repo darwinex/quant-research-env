@@ -1,8 +1,26 @@
+# Ignore pycaches and vscode stuff:
 **/__pycache__/
-.vscode
 .vscode/
-RegimeAnalysisContentSeries/USE_PACKAGES.txt
-RegimeAnalysisContentSeries/Docs/
+
+# Ignore the proprietary tries to test models:
+RegimeAnalysisContentSeries/Models_Prop/
+RegimeAnalysisContentSeries/Plots/Plots_Prop/
+RegimeAnalysisContentSeries/Data/Data_Prop/
+RegimeAnalysisContentSeries/Python_Classes/Research_Studies/RegimeShiftModelStudy/Docs/
+RegimeAnalysisContentSeries/Python_Classes/Research_Studies/RegimeShiftModelStudy/HiddenMModelProp.py
+RegimeAnalysisContentSeries/Python_Classes/Research_Studies/RegimeShiftModelStudy/MarkovARModelProp.py
+
+# Ignore the FTP credentials:
 RegimeAnalysisContentSeries/1_StartingFromData/FTP_DarwinAssets.py
 RegimeAnalysisContentSeries/1_StartingFromData/FTP_TraditionalAssets.py
+
+# Ignore the docs:
+RegimeAnalysisContentSeries/Python_Classes/Research_Studies/RegimeShiftModelStudy/Docs/
+RegimeAnalysisContentSeries/USE_PACKAGES.txt
+RegimeAnalysisContentSeries/Docs/
+
+# Ignore the sentiment analysis module:
 SentimentDataAnalysis/
+
+# Ignore the generated logs:
+**/SystemComponent.log

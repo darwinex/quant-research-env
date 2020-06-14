@@ -1,8 +1,13 @@
+### First, we append the previous level to the sys.path var:
+import sys, os
+### We append the repository path to the sys.path so that we can import packages easily.
+sys.path.append(os.path.expandvars('${HOME}/Desktop/quant-research-env/'))
+
 # Imports:
 from RegimeAnalysisContentSeries.Python_Classes.AssetClass import Asset
 
 # Import utils:
-import os, glob, pprint
+import glob, pprint
 import pandas as pd
 
 class Portfolio(Asset):
@@ -49,6 +54,19 @@ class Portfolio(Asset):
 
             # Read it and add it to the dictionary:
             eachAssetObject._readBidAndAskHistoricalData(eachAssetObject.assetName, endDate)
+            self._portfolioDict[eachAssetObject.assetName] = eachAssetObject._dataDF
+
+    def _readPortfolioFeaturesCsvs(self):
+
+        # Loop and get the data:
+        for eachAsset in self.portfolioAssetComponents:
+
+            # Instantiate the object and call the method:
+            eachAssetObject = eachAsset
+            print(f'[_readPortfolioFeaturesCsvs] - Looping for asset {eachAssetObject.assetName}...')
+
+            # Read it and add it to the dictionary:
+            eachAssetObject._readFeaturesHistoricalData(eachAssetObject.assetName)
             self._portfolioDict[eachAssetObject.assetName] = eachAssetObject._dataDF
 
     ################### PORTFOLIO HISTORICAL DATA ###################

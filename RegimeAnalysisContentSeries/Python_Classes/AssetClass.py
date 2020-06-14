@@ -1,3 +1,8 @@
+### First, we append the previous level to the sys.path var:
+import sys, os
+### We append the repository path to the sys.path so that we can import packages easily.
+sys.path.append(os.path.expandvars('${HOME}/Desktop/quant-research-env/'))
+
 # Import darwinexapis classes:
 from darwinexapis.API.TickDataAPI.DWX_TickData_Downloader_API import DWX_TickData_Downloader_API
 from darwinexapis.API.TickDataAPI.DWX_TickData_Reader_API import DWX_TickData_Reader_API
@@ -134,6 +139,18 @@ class Asset(object):
 
         # Load in df:
         self._dataDF = pd.read_csv(READ_PATH, index_col=0)
+
+    def _readFeaturesHistoricalData(self, assetName):
+
+        # Read the data from the .csv file:
+        homeStr = os.path.expandvars('${HOME}')
+        READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_Others/{assetName}_Others_DF.csv'
+        self._dataDF = pd.read_csv(READ_PATH, index_col='date_time')
+
+        #READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_DF/{assetName}_DF.csv'
+        #self._dataDF = pd.read_csv(READ_PATH, index_col=0)
+
+        print(f'[_readFeaturesHistoricalData] - Got DataFrame for asset {assetName}')
 
     ########################### TRADITIONAL ASSET DATA ###########################
 
