@@ -29,7 +29,7 @@ class MarkovAutoRegressiveModels(BaseModel):
 
         # Create some assets:
         assetsList = [Asset('WS30', 'traditional', 'historical'), # Index US
-                      Asset('XAUUSD', 'traditional', 'historical'), # CryptoCurrency
+                      Asset('XAUUSD', 'traditional', 'historical'), # Commodity
                       Asset('GDAXIm', 'traditional', 'historical'), # Index EUR
                       Asset('EURUSD', 'traditional', 'historical'), # Major
                       Asset('GBPJPY', 'traditional', 'historical') # Minor
