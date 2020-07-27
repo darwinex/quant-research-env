@@ -10,6 +10,9 @@ RegimeAnalysisContentSeries/Python_Classes/Research_Studies/RegimeShiftModelStud
 RegimeAnalysisContentSeries/Python_Classes/Research_Studies/RegimeShiftModelStudy/HiddenMModelProp.py
 RegimeAnalysisContentSeries/Python_Classes/Research_Studies/RegimeShiftModelStudy/MarkovARModelProp.py
 
+# Ignore the OnlinePortfolio Module for now:
+DARWINStrategyContentSeries/OnlinePortfolioStrategies/
+
 # Ignore the FTP credentials:
 RegimeAnalysisContentSeries/1_StartingFromData/FTP_DarwinAssets.py
 RegimeAnalysisContentSeries/1_StartingFromData/FTP_TraditionalAssets.py
@@ -24,3 +27,4 @@ SentimentDataAnalysis/
 
 # Ignore the generated logs:
 **/SystemComponent.log
+SystemComponent.log

@@ -1,4 +1,4 @@
-FTP_CREDENTIALS = {"username": "babyshark11",
-                   "password": "R2VoHa86X2UG8z",
+FTP_CREDENTIALS = {"username": "erizzarate",
+                   "password": "3N261kOegdeYbl",
                    "server": "darwindata.darwinex.com",
                    "port": 21}

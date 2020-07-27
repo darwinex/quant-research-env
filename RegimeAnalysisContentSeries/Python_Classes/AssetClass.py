@@ -71,14 +71,10 @@ class Asset(object):
 
                 # Create the DF and the dates:
                 self._dataDF = None
-                self.startDate, self.endDate = '2019-01-01', '2019-03-03'
+                self.startMonth, self.startYear = '03', '2019'
 
                 # Assign the method to a more general one:
                 self._getData = self._getHistoricalDataOfDarwinAsset
-
-        # Will request live data if we want to make a Strategy or Model out of it:
-        elif assetDataType == 'live':
-            pass
 
     ########################### TRADITIONAL ASSET DATA ###########################
 
@@ -144,11 +140,11 @@ class Asset(object):
 
         # Read the data from the .csv file:
         homeStr = os.path.expandvars('${HOME}')
-        READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_Others/{assetName}_Others_DF.csv'
-        self._dataDF = pd.read_csv(READ_PATH, index_col='date_time')
+        #READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_Others/{assetName}_Others_DF.csv'
+        #self._dataDF = pd.read_csv(READ_PATH, index_col='date_time')
 
-        #READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_DF/{assetName}_DF.csv'
-        #self._dataDF = pd.read_csv(READ_PATH, index_col=0)
+        READ_PATH = f'{homeStr}/Desktop/quant-research-env/RegimeAnalysisContentSeries/Data/Data_DF/{assetName}_DF.csv'
+        self._dataDF = pd.read_csv(READ_PATH, index_col=0)
 
         print(f'[_readFeaturesHistoricalData] - Got DataFrame for asset {assetName}')
 
@@ -156,14 +152,35 @@ class Asset(object):
 
     ########################### DARWIN ASSET DATA ###########################
 
-    def _getHistoricalDataOfDarwinAsset(self, assetSuffix):
+    def _getHistoricalDataOfDarwinAsset(self, darwinAssetName, suffix, saveTheData):
 
-        # Get the data:
+        # Get quote date for DARWINs:
+        # This call will get all the data and will take some time to execute.
+        formerOrNew = 'former'
+        self.assetName = darwinAssetName
         quotes = self.DOWNLOADER.get_quotes_from_ftp(darwin=self.assetName,
-                                                     suffix=assetSuffix,
-                                                     monthly=True, # If set to False, month/year used > If True ALL data available
-                                                     month=self.startDate,
-                                                     year=self.endDate)
+                                                     suffix=suffix,
+                                                     monthly=False, # If set to False, month/year used > If True ALL data available
+                                                     month=self.startMonth,
+                                                     year=self.startYear, 
+                                                     former_or_new=formerOrNew)
+        if saveTheData:
+            self.DOWNLOADER.save_data_to_csv(quotes, 
+                                             which_path=os.path.expandvars('${HOME}/Desktop/quant-research-env/DARWINStrategyContentSeries/Data/'), 
+                                             filename=f'{self.assetName}_{formerOrNew}_Quotes')
+
+        # Get it into the attribute:
+        self._dataDF = quotes
+
+    def _readFeaturesHistoricalDarwinData(self, assetName, formerOrNew):
+
+        # Read the data from the .csv file:
+        homeStr = os.path.expandvars('${HOME}')
+        READ_PATH = f'{homeStr}/Desktop/{assetName}_{formerOrNew}_Quotes.csv'
+        #READ_PATH = f'{homeStr}/Desktop/quant-research-env/DARWINStrategyContentSeries/Data/{assetName}_{formerOrNew}_Quotes.csv'
+        self._dataDF = pd.read_csv(READ_PATH, index_col=0, parse_dates=True, infer_datetime_format=True)
+
+        print(f'[_readFeaturesHistoricalDarwinData] - Got DataFrame for asset {assetName}')
 
     ########################### DARWIN ASSET DATA ###########################
 

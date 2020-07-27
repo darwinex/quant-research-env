@@ -69,6 +69,48 @@ class Portfolio(Asset):
             eachAssetObject._readFeaturesHistoricalData(eachAssetObject.assetName)
             self._portfolioDict[eachAssetObject.assetName] = eachAssetObject._dataDF
 
+    ##################### DARWIN ASSET #####################
+
+    def _formPortfolioDARWINHistoricalData(self, saveTheData):
+        
+        # Loop and get the data:
+        for eachAsset in self.portfolioAssetComponents:
+
+            # Instantiate the object and call the method:
+            eachAssetObject = eachAsset
+
+            # Get the suffix:
+            darwinAssetName = eachAssetObject.assetName.split('_')[0]
+            suffix = eachAssetObject.assetName.split('_')[1]
+
+            eachAssetObject._getData(darwinAssetName, suffix, saveTheData)
+            
+            # Quit the FTP connection for cleaning:
+            #eachAssetObject.DOWNLOADER._ftpObj.quit()
+            #self._portfolioDict[eachAssetObject.assetName] = eachAssetObject._dataDF
+            self._portfolioDict[darwinAssetName] = eachAssetObject._dataDF
+
+        # Print the dict:
+        pprint.pprint(self._portfolioDict) 
+
+    def _readPortfolioDarwinFeaturesCsvs(self, formerOrNew):
+
+        # Loop and get the data:
+        for eachAsset in self.portfolioAssetComponents:
+
+            # Instantiate the object and call the method:
+            eachAssetObject = eachAsset
+            print(f'[_readPortfolioDarwinFeaturesCsvs] - Looping for asset {eachAssetObject.assetName}...')
+
+            # Get the suffix:
+            darwinAssetName = eachAssetObject.assetName.split('_')[0]
+            #suffix = eachAssetObject.assetName.split('_')[1]
+
+            # Read it and add it to the dictionary:
+            eachAssetObject._readFeaturesHistoricalDarwinData(darwinAssetName, formerOrNew)
+            #self._portfolioDict[eachAssetObject.assetName] = eachAssetObject._dataDF
+            self._portfolioDict[darwinAssetName] = eachAssetObject._dataDF
+
     ################### PORTFOLIO HISTORICAL DATA ###################
 
     ################### PORTFOLIO LIVE DATA ###################
