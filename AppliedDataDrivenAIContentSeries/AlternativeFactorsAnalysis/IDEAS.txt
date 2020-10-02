@@ -1,0 +1,8 @@
+
+- Twitter Sentiment Model
+- Google Trends Model
+- News analysis Model
+- DPI and related Model
+- Interest Rates Model
+- MacroEc Model
+- ...

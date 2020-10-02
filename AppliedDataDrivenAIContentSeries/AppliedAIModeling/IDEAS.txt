@@ -1,0 +1,13 @@
+
+
+- Normal assumption of returns > Although very good characteristics for modeling and beyond, that is not realistic; so it should be a terrible idea to apply models like that to that data.
+
+- Build models for THE SPECIFIC DATA YOU HAVE, NOT IN REVERSED WAY.
+
+- We need to tackle with RISK in quantitative finance > Uncertainty?
+
+- Markov Chain MC > Inference is automatic > I just hit the play button and sampling from distros and derivatives happen in the back-end.
+
+    - Is inference the process of fitting plus getting results or just fitting?
+    
+- One number > Not accounting for uncertainty! Even with more data > More confidence!
