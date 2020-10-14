@@ -25,7 +25,7 @@ class PredictiveDarwinAnalysis(object):
         # Create the home variable:
         self.homeStr = os.path.expandvars('${HOME}')
 
-    def _generateAnalysis(self, darwins):
+    def _generateAnalysis(self, darwins, timeframeString):
 
         # Loop for each historical scores csv:
         for eachDarwin in darwins:
@@ -41,13 +41,15 @@ class PredictiveDarwinAnalysis(object):
             logger.warning(RETURNS.head(15))
 
             # Plot it:
-            #self._plotInvAttsAndDarwinReturns(eachDarwin, RETURNS, SCORES, showIt=False)
-            self._plotInvAttsAndDarwinReturns(eachDarwin, RETURNS, SCORES, showIt=True)
+            #self._plotInvAttsAndDarwinReturns(eachDarwin, RETURNS, SCORES, showIt=False, timeframeString)
+            self._plotInvAttsAndDarwinReturns(eachDarwin, RETURNS, SCORES, timeframeString, showIt=True)
 
-    def _plotInvAttsAndDarwinReturns(self, darwinString, returnsDF, scoresDF, showIt=True):
+    def _plotInvAttsAndDarwinReturns(self, darwinString, returnsDF, scoresDF, timeframeString, showIt=True):
 
         # Get first index value so that we match available data:
-        firstDate = returnsDF.index[0]
+        firstDate = returnsDF.index[0].date()
+        print(type(firstDate))
+        logger.warning(f'FIRST DATE: {firstDate}')
 
         # For each investment attribute, generate a plot:
         for eachAttributeName in scoresDF.columns:
@@ -56,15 +58,33 @@ class PredictiveDarwinAnalysis(object):
             f1, ax = plt.subplots(figsize = (10,5))
             f1.canvas.set_window_title(eachAttributeName)
 
+            # Make copies:
+            scores = scoresDF.loc[firstDate:, eachAttributeName]
+            logger.warning(scores.tail(15))
+
+            # Same with returns:
+            returns = returnsDF[f'{darwinString}_returns']
+            returns.index = pd.to_datetime(returns.index)
+            returns.index = returns.index.date
+            returns.dropna(axis=0, inplace=True)
+            logger.warning(returns.tail(15))
+
+            # Create new df:
+            newDf = pd.concat([scores, returns], axis=1, keys=[eachAttributeName, f'{darwinString}_returns'])
+            newDf.dropna(axis=0, inplace=True)
+            newDf[f'{darwinString}_returns'] = newDf[f'{darwinString}_returns'].shift(-1)
+            newDf.dropna(axis=0, inplace=True)
+            logger.warning(newDf.tail(15))
+
             # Plot returns of candles + attributes:
-            plt.plot(scoresDF.loc[firstDate:, eachAttributeName], label=eachAttributeName)
-            plt.plot(returnsDF[f'{darwinString}_returns'], label=f'Weekly Returns {darwinString}')
+            plt.plot(newDf[eachAttributeName], label=eachAttributeName)
+            plt.plot(newDf[f'{darwinString}_returns'], label=f'{timeframeString} Shifted Returns {darwinString}')
 
             # Settle other stuff:
             plt.grid(linestyle='dotted')
             plt.xlabel('Observations')
             plt.ylabel('Values')
-            plt.title(f'Inv Att ({eachAttributeName}) + Weekly Returns of Darwin <{darwinString}>')
+            plt.title(f'Inv Att ({eachAttributeName}) + {timeframeString} Returns of Darwin <{darwinString}>')
             plt.legend(loc='best')
             plt.subplots_adjust(left=0.09, bottom=0.20, right=0.94, top=0.90, wspace=0.2, hspace=0)
 
@@ -79,12 +99,11 @@ class PredictiveDarwinAnalysis(object):
 
         # Get historical scores for csvs:
         DARWINS = ['LVS', 'THA']
-        #self.CSV_PATH = f'{self.homeStr}/Desktop/Darwinex/quant-research-env/DARWINStrategyContentSeries/DARWINQuantitativeTrading/Data/Daily/'
-        #self.CSV_PATH = f'{self.homeStr}/Desktop/Darwinex/quant-research-env/DARWINStrategyContentSeries/DARWINQuantitativeTrading/Data/Weekly/'
-        self.CSV_PATH = f'{self.homeStr}/Desktop/Darwinex/quant-research-env/DARWINStrategyContentSeries/DARWINQuantitativeTrading/Data/Monthly/'
+        timeframeString = 'Weekly'
+        self.CSV_PATH = f'{self.homeStr}/Desktop/Darwinex/quant-research-env/DARWINStrategyContentSeries/DARWINQuantitativeTrading/Data/{timeframeString}/'
 
         # Generate analysis (plots, csvs...):
-        self._generateAnalysis(DARWINS)
+        self._generateAnalysis(DARWINS, timeframeString)
 
 if __name__ == "__main__":
 

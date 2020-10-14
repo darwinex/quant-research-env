@@ -10,7 +10,7 @@ from darwinexapis.API.TradingAPI.DWX_Trading_API import DWX_Trading_API
 from darwinexapis.API.InvestorAccountInfoAPI.DWX_AccInfo_API import DWX_AccInfo_API
 
 # Import the logger:
-import logging, time, json, random, pickle
+import logging, time, json, random, pickle, itertools
 import pandas as pd, numpy as np
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 from datetime import datetime
@@ -167,13 +167,48 @@ class PredictiveDarwinAnalysis(object):
 
     #########################################
 
-    def _checkForLowCorrelation(self, absCorrMatrix):
+    def _getLowestCorrPortfolio(self, corrMatrix, darwins):
 
-        # Sort them and get the lowest:
-        corrMatrixUnstacked = absCorrMatrix.unstack()
-        sortedCorrMatrix = corrMatrixUnstacked.sort_values(kind="quicksort")
+        # Get combinations up to X assets:
+        darwinPortCombinations = list(itertools.combinations(darwins, 6))
+        logger.warning(darwinPortCombinations)
 
-        return sortedCorrMatrix
+        # Create placeholders:
+        portfoliosDict = {}
+        corrDict = {}
+        corrDictAbs = {}
+
+        # Loop:
+        for eachPortfolioIteration, eachCombination in enumerate(darwinPortCombinations, 1):
+
+            # Set:
+            corrValueFinal = 0
+            logger.warning(f'POSSIBLE PORTFOLIO: {eachCombination}')
+            logger.warning(f'CORR VALUE FINAL (PRE-LOOP): {corrValueFinal}')
+
+            # Create comparable pairs:
+            darwinPairs = list(itertools.combinations(eachCombination, 2))
+
+            # Loop and add:
+            for eachDarwinPair in darwinPairs:
+
+                # Get the corr value and add:
+                corrValue = corrMatrix.loc[eachDarwinPair[0], eachDarwinPair[1]]
+                corrValueFinal += corrValue
+
+            # Print value final:
+            logger.warning(f'CORR VALUE FINAL (AFTER LOOP): {corrValueFinal}')
+
+            # Fill:
+            portfoliosDict[eachPortfolioIteration] = eachCombination
+            corrDict[eachPortfolioIteration] = corrValueFinal
+            corrDictAbs[eachPortfolioIteration] = abs(corrValueFinal)
+        
+        # Get the key:
+        minKey = min(corrDict, key=corrDict.get)
+        minKeyNearZero = min(corrDictAbs, key=corrDictAbs.get)
+
+        return corrDict[minKey], portfoliosDict[minKey], corrDictAbs[minKeyNearZero], portfoliosDict[minKeyNearZero]
 
     def _findLessCorrelatedDARWINs(self, howManyToTest=4, howManyToTrade=5):
 
@@ -184,7 +219,7 @@ class PredictiveDarwinAnalysis(object):
         # DARWINS_SYMBOLS = self._createInvestmentAttrsFilteredPortfolio(howMany=howManyToTest)
 
         # JUST SOME OF THEM:
-        DARWINS_SYMBOLS = ['LVS', 'THA', 'OOS', 'PLF', 'CIS', 'KLG', 'SYO', 'JHU']
+        DARWINS_SYMBOLS = ['LVS', 'THA', 'OOS', 'PLF', 'CIS', 'KLG', 'SYO', 'JHU', 'UYZ', 'BZC']
         logger.warning(DARWINS_SYMBOLS)
 
         # Get candles for those DARWINs:
@@ -196,9 +231,15 @@ class PredictiveDarwinAnalysis(object):
         logger.warning(CORRELATION_MATRIX)
 
         # Find less correlated ones:
-        LESS_CORRELATED = self._checkForLowCorrelation(ABS_CORRELATION_MATRIX)
-        logger.warning('LESS CORRELATED DARWINS:')
-        logger.warning(LESS_CORRELATED)
+        LESS_CORR_MINUS, LESS_CORR_PORT_MINUS, LESS_CORR_ZERO, LESS_CORR_PORT_ZERO = self._getLowestCorrPortfolio(CORRELATION_MATRIX, DARWINS_SYMBOLS)
+        logger.warning('LESS CORRELATED VALUE (MINUS):')
+        logger.warning(LESS_CORR_MINUS)
+        logger.warning('LESS CORRELATED PORTFOLIO (MINUS):')
+        logger.warning(LESS_CORR_PORT_MINUS)
+        logger.warning('LESS CORRELATED VALUE (NEAR ZERO):')
+        logger.warning(LESS_CORR_ZERO)
+        logger.warning('LESS CORRELATED PORTFOLIO (NEAR ZERO):')
+        logger.warning(LESS_CORR_PORT_ZERO)
 
     ##########################################################
 
