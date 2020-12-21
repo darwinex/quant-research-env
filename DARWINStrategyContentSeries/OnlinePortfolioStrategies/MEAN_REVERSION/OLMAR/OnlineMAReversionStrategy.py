@@ -13,8 +13,8 @@ class OnlineMAReversionStrategy(object):
     def __init__(self):
 
         # Get the data:
-        self.loadDirectory = os.path.expandvars('${HOME}/Desktop/quant-research-env/DARWINStrategyContentSeries/Data/ClosePricePortfolio.csv')
-        self.saveDirectory = os.path.expandvars('${HOME}/Desktop/quant-research-env/DARWINStrategyContentSeries/OnlinePortfolioStrategies/MEAN_REVERSION/OLMAR/')
+        self.loadDirectory = os.path.expandvars('${HOME}/Desktop/Darwinex/quant-research-env/DARWINStrategyContentSeries/Data/ClosePricePortfolio.csv')
+        self.saveDirectory = os.path.expandvars('${HOME}/Desktop/Darwinex/quant-research-env/DARWINStrategyContentSeries/OnlinePortfolioStrategies/MEAN_REVERSION/OLMAR/')
         self.DF_CLOSE = self._loadTechnicalDataset()
 
     def _loadTechnicalDataset(self):
