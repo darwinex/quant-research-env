@@ -1,4 +1,4 @@
-FTP_CREDENTIALS = {"username": "erizzarate",
-                   "password": "h456JhRNGIs0ef",
-                   "server": "tickdata.darwinex.com",
+FTP_CREDENTIALS = {"username": "<INSERT_USERNAME>",
+                   "password": "<INSERT_PASSWORD>",
+                   "server": "<SERVER_HOST>",
                    "port": 21}
